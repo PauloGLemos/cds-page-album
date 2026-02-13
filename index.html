@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr">
+
+<head>
+  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <title>Albuns.co</title>
+</head>
+
+<body>
+  <nav class="top-nav">
+    <a href="index.html" class="nav-home">HOME</a>
+  </nav>
+  <div class="scene">
+
+    <button class="nav left" id="prev">❮</button>
+
+    <div class="carousel" id="carousel">
+
+      <div class="cd-case side cd-left">
+        <div class="cd-visual">
+          <img src="1.png" class="cd-frame">
+          <div class="cd-spine"></div>
+          <img class="album-cover" />
+        </div>
+      </div>
+
+      <div class="cd-case active cd-active">
+        <div class="cd-visual">
+          <img src="1.png" class="cd-frame">
+          <div class="cd-spine"></div>
+          <img class="album-cover" />
+        </div>
+      </div>
+
+      <div class="cd-case side cd-right">
+        <div class="cd-visual">
+          <img src="1.png" class="cd-frame">
+          <div class="cd-spine"></div>
+          <img class="album-cover" />
+        </div>
+      </div>
+
+    </div>
+    <button class="nav right" id="next">❯</button>
+  </div>
+
+  <div class="info">
+    <div class="album-name" id="albumName"></div>
+    <div class="artist-name" id="artistName"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

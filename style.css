@@ -1,0 +1,204 @@
+/* RESET */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* BODY */
+body {
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at center, #111, #000);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  perspective: 1600px;
+  overflow: hidden;
+}
+
+/* =========================
+   TOP NAV
+   ========================= */
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.nav-home {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .top-nav {
+    height: 56px;
+  }
+  body {
+    padding-top: 56px;
+  }
+}
+
+/* =========================
+   SCENE / CAROUSEL
+   ========================= */
+.scene {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.carousel {
+  display: flex;
+  align-items: center;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+/* =========================
+   CD CASE
+   ========================= */
+.cd-case {
+  width: 260px;
+  height: 250px;
+  position: relative;
+  transform-style: preserve-3d;
+  display: none;
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.5s ease,
+    filter 0.5s ease;
+}
+
+/* =========================
+   CD VISUAL
+   ========================= */
+.cd-visual {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  overflow: hidden;
+}
+
+/* SPINE */
+.cd-spine {
+  width: 30px;
+  height: 100%;
+  background-color: #1E1E1E ;
+  flex-shrink: 0;
+}
+
+/* CAPA */
+.album-cover {
+  width: calc(100% - 30px);
+  height: 100%;
+  object-position: center;
+  background-color: black;
+  display: block;
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease;
+}
+
+/* =========================
+   CD ATIVO
+   ========================= */
+.cd-case.active {
+  display: block;
+  width: 320px;
+  height: 308px;
+  z-index: 3;
+  opacity: 1;
+  filter: none;
+  transform: scale(1) translateZ(0);
+}
+
+/* =========================
+   CDS LATERAIS
+   ========================= */
+.cd-case.side {
+  display: block;
+  width: 260px;
+  height: 250px;
+  opacity: 0.9;
+  filter: brightness(0.8);
+  z-index: 1;
+  transform:
+    scale(0.96)
+    translateZ(-50px);
+  transition:
+    transform 0.4s ease,
+    opacity 0.4s ease,
+    filter 0.4s ease;
+}
+
+.cd-case.side.left {
+  margin-right: -100px;
+}
+
+.cd-case.side.right {
+  margin-left: -100px;
+}
+
+/* =========================
+   SETAS
+   ========================= */
+.nav {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 42px;
+  cursor: pointer;
+  opacity: 0.95;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.nav:hover {
+  opacity: 1;
+  transform: scale(1.25);
+}
+
+/* =========================
+   TEXTO
+   ========================= */
+.info {
+  margin-top: 48px;
+  text-align: center;
+  color: white;
+}
+
+.album-name {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.artist-name {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.cd-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform: translateZ(60px);
+}
