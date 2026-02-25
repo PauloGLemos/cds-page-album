@@ -64,7 +64,7 @@ prev.addEventListener("click", () => {
 });
 
 /* =========================
-   SWIPE MOBILE
+   SWIPE
    ========================= */
 let touchStartX = 0;
 
@@ -79,11 +79,13 @@ carousel.addEventListener("touchend", (e) => {
 });
 
 /* =========================
-   GIROSCÓPIO REAL (iOS OK)
+   GIROSCÓPIO 360°
    ========================= */
 
-let smoothX = 0;
-let smoothY = 0;
+let currentX = 0;
+let currentY = 0;
+let targetX = 0;
+let targetY = 0;
 
 function resetTilt() {
   const visual = document.querySelector(".cd-case.active .cd-visual");
@@ -96,26 +98,35 @@ function handleOrientation(event) {
   const visual = document.querySelector(".cd-case.active .cd-visual");
   if (!visual) return;
 
-  let beta = event.beta;
-  let gamma = event.gamma;
+  let beta = event.beta;   // frente / trás
+  let gamma = event.gamma; // esquerda / direita
 
   if (beta === null || gamma === null) return;
 
-  // Limite seguro
-  beta = Math.max(-35, Math.min(35, beta));
-  gamma = Math.max(-35, Math.min(35, gamma));
+  // Sensibilidade maior para pegar diagonais bem
+  const sensitivity = 0.7;
 
-  const sensitivity = 0.6;
-  const smoothFactor = 0.15;
+  targetX = beta * -sensitivity;
+  targetY = gamma * sensitivity;
+}
 
-  const targetX = beta * -sensitivity;
-  const targetY = gamma * sensitivity;
+function animateTilt() {
+  const visual = document.querySelector(".cd-case.active .cd-visual");
+  if (!visual) {
+    requestAnimationFrame(animateTilt);
+    return;
+  }
 
-  smoothX += (targetX - smoothX) * smoothFactor;
-  smoothY += (targetY - smoothY) * smoothFactor;
+  // suavização real por frame
+  const ease = 0.12;
+
+  currentX += (targetX - currentX) * ease;
+  currentY += (targetY - currentY) * ease;
 
   visual.style.transform =
-    `rotateX(${smoothX}deg) rotateY(${smoothY}deg)`;
+    `rotateX(${currentX}deg) rotateY(${currentY}deg)`;
+
+  requestAnimationFrame(animateTilt);
 }
 
 function enableGyroscope() {
@@ -123,21 +134,19 @@ function enableGyroscope() {
   if (!window.DeviceOrientationEvent) return;
 
   if (typeof DeviceOrientationEvent.requestPermission === "function") {
-
     document.body.addEventListener("click", async () => {
       try {
         const permission = await DeviceOrientationEvent.requestPermission();
         if (permission === "granted") {
           window.addEventListener("deviceorientation", handleOrientation);
         }
-      } catch (error) {
-        console.log("Permissão negada");
-      }
+      } catch (e) {}
     }, { once: true });
-
   } else {
     window.addEventListener("deviceorientation", handleOrientation);
   }
+
+  animateTilt();
 }
 
 /* =========================
