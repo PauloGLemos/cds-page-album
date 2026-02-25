@@ -93,52 +93,72 @@ carousel.addEventListener("touchend", (e) => {
 });
 
 /* =========================
-   EFEITO 3D (CAPA + SPINE)
+   EFEITO 3D MOBILE (GYRO)
    ========================= */
+
 const activeVisual = () =>
   document.querySelector(".cd-case.active .cd-visual");
 
-document.addEventListener("mousemove", (e) => {
-  const visual = activeVisual();
-  if (!visual) return;
-
-  const rect = visual.getBoundingClientRect();
-
-  const inside =
-    e.clientX >= rect.left &&
-    e.clientX <= rect.right &&
-    e.clientY >= rect.top &&
-    e.clientY <= rect.bottom;
-
-  if (!inside) {
-    visual.style.transform =
-      "rotateX(0deg) rotateY(0deg)";
-    return;
-  }
-
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
-  const cx = rect.width / 2;
-  const cy = rect.height / 2;
-
-  const rx = -((y - cy) / cy) * 18;
-  const ry = ((x - cx) / cx) * 18;
-
-  visual.style.transform =
-    `rotateX(${rx}deg) rotateY(${ry}deg)`;
-});
-
-document.addEventListener("mouseleave", resetTilt);
-
 function resetTilt() {
   const visual = activeVisual();
-  if (visual)
+  if (visual) {
     visual.style.transform =
       "rotateX(0deg) rotateY(0deg)";
+  }
+}
+
+function isMobile() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function enableGyroTilt() {
+  if (!isMobile()) return;
+
+  const startGyro = () => {
+    window.addEventListener("deviceorientation", (event) => {
+      const visual = activeVisual();
+      if (!visual) return;
+
+      let beta = event.beta;
+      let gamma = event.gamma;
+
+      if (beta === null || gamma === null) return;
+
+      // Limita inclinação
+      beta = Math.max(-30, Math.min(30, beta));
+      gamma = Math.max(-30, Math.min(30, gamma));
+
+      const rotateX = beta * -0.4;
+      const rotateY = gamma * 0.6;
+
+      visual.style.transform =
+        `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+  };
+
+  // iOS precisa permissão
+  if (
+    typeof DeviceOrientationEvent !== "undefined" &&
+    typeof DeviceOrientationEvent.requestPermission === "function"
+  ) {
+    document.body.addEventListener(
+      "click",
+      async () => {
+        const permission =
+          await DeviceOrientationEvent.requestPermission();
+        if (permission === "granted") {
+          startGyro();
+        }
+      },
+      { once: true }
+    );
+  } else {
+    startGyro();
+  }
 }
 
 /* =========================
    INIT
    ========================= */
 render();
+enableGyroTilt();
