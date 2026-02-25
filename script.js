@@ -31,29 +31,18 @@ const albums = [
   { image: "https://www.thebeatles.com/sites/default/files/styles/responsive_thumbnail_mobile/public/2021-06/Love-Album%201024.png?itok=jv1ZNE2o", album: "Love", artist: "The Beatles" }
 ];
 
-
 let currentIndex = 0;
 
 /* =========================
    RENDER
    ========================= */
 function render() {
-  const leftIndex =
-    (currentIndex - 1 + albums.length) % albums.length;
-  const rightIndex =
-    (currentIndex + 1) % albums.length;
+  const leftIndex = (currentIndex - 1 + albums.length) % albums.length;
+  const rightIndex = (currentIndex + 1) % albums.length;
 
-  // LEFT
-  cases[0].querySelector(".album-cover").src =
-    albums[leftIndex].image;
-
-  // ACTIVE
-  cases[1].querySelector(".album-cover").src =
-    albums[currentIndex].image;
-
-  // RIGHT
-  cases[2].querySelector(".album-cover").src =
-    albums[rightIndex].image;
+  cases[0].querySelector(".album-cover").src = albums[leftIndex].image;
+  cases[1].querySelector(".album-cover").src = albums[currentIndex].image;
+  cases[2].querySelector(".album-cover").src = albums[rightIndex].image;
 
   albumName.textContent = albums[currentIndex].album;
   artistName.textContent = albums[currentIndex].artist;
@@ -70,8 +59,7 @@ next.addEventListener("click", () => {
 });
 
 prev.addEventListener("click", () => {
-  currentIndex =
-    (currentIndex - 1 + albums.length) % albums.length;
+  currentIndex = (currentIndex - 1 + albums.length) % albums.length;
   render();
 });
 
@@ -85,15 +73,13 @@ carousel.addEventListener("touchstart", (e) => {
 });
 
 carousel.addEventListener("touchend", (e) => {
-  const delta =
-    e.changedTouches[0].clientX - touchStartX;
-
+  const delta = e.changedTouches[0].clientX - touchStartX;
   if (Math.abs(delta) < 50) return;
   delta < 0 ? next.click() : prev.click();
 });
 
 /* =========================
-   EFEITO 3D MOBILE (GYRO)
+   GIROSCÓPIO REAL
    ========================= */
 
 const activeVisual = () =>
@@ -102,58 +88,53 @@ const activeVisual = () =>
 function resetTilt() {
   const visual = activeVisual();
   if (visual) {
-    visual.style.transform =
-      "rotateX(0deg) rotateY(0deg)";
+    visual.style.transform = "rotateX(0deg) rotateY(0deg)";
   }
 }
 
-function isMobile() {
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
+function enableGyroscope() {
+  if (!window.DeviceOrientationEvent) return;
 
-function enableGyroTilt() {
-  if (!isMobile()) return;
+  let smoothX = 0;
+  let smoothY = 0;
 
-  const startGyro = () => {
-    window.addEventListener("deviceorientation", (event) => {
-      const visual = activeVisual();
-      if (!visual) return;
+  const sensitivity = 0.4; // intensidade
+  const smoothFactor = 0.1; // suavização
 
-      let beta = event.beta;
-      let gamma = event.gamma;
+  const handleOrientation = (event) => {
+    const visual = activeVisual();
+    if (!visual) return;
 
-      if (beta === null || gamma === null) return;
+    let beta = event.beta;   // frente/trás
+    let gamma = event.gamma; // esquerda/direita
 
-      // Limita inclinação
-      beta = Math.max(-30, Math.min(30, beta));
-      gamma = Math.max(-30, Math.min(30, gamma));
+    if (beta === null || gamma === null) return;
 
-      const rotateX = beta * -0.4;
-      const rotateY = gamma * 0.6;
+    // Limita valores
+    beta = Math.max(-30, Math.min(30, beta));
+    gamma = Math.max(-30, Math.min(30, gamma));
 
-      visual.style.transform =
-        `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    });
+    const targetX = beta * -sensitivity;
+    const targetY = gamma * sensitivity;
+
+    // Suavização (evita tremedeira)
+    smoothX += (targetX - smoothX) * smoothFactor;
+    smoothY += (targetY - smoothY) * smoothFactor;
+
+    visual.style.transform =
+      `rotateX(${smoothX}deg) rotateY(${smoothY}deg)`;
   };
 
-  // iOS precisa permissão
-  if (
-    typeof DeviceOrientationEvent !== "undefined" &&
-    typeof DeviceOrientationEvent.requestPermission === "function"
-  ) {
-    document.body.addEventListener(
-      "click",
-      async () => {
-        const permission =
-          await DeviceOrientationEvent.requestPermission();
-        if (permission === "granted") {
-          startGyro();
-        }
-      },
-      { once: true }
-    );
+  // iOS precisa de permissão
+  if (typeof DeviceOrientationEvent.requestPermission === "function") {
+    document.body.addEventListener("click", async () => {
+      const permission = await DeviceOrientationEvent.requestPermission();
+      if (permission === "granted") {
+        window.addEventListener("deviceorientation", handleOrientation);
+      }
+    }, { once: true });
   } else {
-    startGyro();
+    window.addEventListener("deviceorientation", handleOrientation);
   }
 }
 
@@ -161,4 +142,4 @@ function enableGyroTilt() {
    INIT
    ========================= */
 render();
-enableGyroTilt();
+enableGyroscope();
